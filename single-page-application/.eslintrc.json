@@ -1,0 +1,22 @@
+{
+	"parserOptions": {
+		"ecmaVersion": 2017
+	},
+	"env": {
+		"es6": true,
+		"browser": true,
+		"node": true,
+		"jquery": true,
+		"jest": true
+	},
+	"globals": {
+		"Handlebars": true,
+		"Router": true
+	},
+	"extends": "standard",
+	"rules": {
+      "semi": [2, "always"],
+      "indent": "off"
+    }
+
+}
