@@ -131,7 +131,7 @@ app.post('/api/newaccount', function (req, res) {
 });
 
 // Testing POST method to delete test account (used for deleting
-// test user after registering them for testing purposes)
+// test user after registering them, purely for testing purposes)
 app.post('/api/deleteTestAccount', function (req, res) {
   jsonReader('accounts.json', (err, credentials) => {
     if (err) {
@@ -142,6 +142,7 @@ app.post('/api/deleteTestAccount', function (req, res) {
       // delete the specific test user that we registered
       for (var i = 0; i < credentials.accounts.length; i++) {
         if (credentials.accounts[i].email_address === 'test098@testing345test.com') {
+          // this is the email address of the test user that we create
           credentials.accounts.splice(i, 1);
         }
       }
@@ -155,7 +156,8 @@ app.post('/api/deleteTestAccount', function (req, res) {
   });
 });
 
-// Check whether user is authenticated method
+// Check whether user is authenticated method by checking
+// the cookie in the request header
 app.get('/api/checkperms', function (req, res) {
   if (validateEmail(req.signedCookies.email_address) === true) {
     res.status(200).json({ message: 'authenticated' });
@@ -164,7 +166,7 @@ app.get('/api/checkperms', function (req, res) {
   }
 });
 
-// Logout method
+// Logout method (clears cookie from req header)
 app.get('/api/logout', function (req, res) {
   res.clearCookie('email_address');
   res.redirect('/');
@@ -191,8 +193,8 @@ app.get('/api/getImageSources', function (req, res) {
 });
 
 // GET method to return users who have uploaded photos, along
-// with the no. photos they have uploaded and sort the users
-// accordingly
+// with the number of photos they have uploaded and sort the users
+// accordingly by these numbers
 app.get('/api/getUserLeaderboard', function (req, res) {
   fs.readFile('images.json', 'utf8', (err, jsonString) => {
     if (err) {
@@ -206,8 +208,10 @@ app.get('/api/getUserLeaderboard', function (req, res) {
       var result;
       for (result in results.images) {
         if (results.images[result].user in trackingArray) {
+          // increment count by 1 if we have already seen this user
           trackingArray[results.images[result].user]++;
         } else {
+          // set count to 1 if seeing user for the first time
           trackingArray[results.images[result].user] = 1;
         }
       }
@@ -238,10 +242,13 @@ app.post('/api/uploadPhoto', function (req, res) {
     } else if (!req.body.source_link) {
       res.status(422).json(
         { message: 'Image source link cannot be empty' });
+      // the src link is validated client side; but if API is called outside of the app,
+      // it is validated afterwards using the alt feature of HTML img elements
     } else if (!req.body.caption) {
       res.status(422).json(
         { message: 'Caption cannot be empty' });
     } else if (validateEmail(req.signedCookies.email_address) !== true) {
+      // this service requires user to be authenticated
       res.status(403).json(
         { message: 'There is no valid cookie to determine authenticity' });
     } else {
@@ -275,11 +282,13 @@ app.get('/api/getComments', function (req, res) {
       if (source) {
         var comments = JSON.parse(jsonString)[source];
         if (comments) {
+          // parameter matches to an image previously stored
           res.status(200).json({ results: comments });
         } else {
           res.status(200).json({ results: 'No comments have been submitted for this photo yet.' });
         }
       } else {
+        // no parameter given = return all comments
         res.status(200).json({ results: jsonString });
       }
     } catch (err) {
@@ -304,6 +313,7 @@ app.post('/api/submitComment', function (req, res) {
       res.status(422).json(
         { message: 'Comment cannot be empty' });
     } else if (validateEmail(req.signedCookies.email_address) !== true) {
+      // this service requires user to be authenticated
       res.status(403).json(
         { message: 'There is no valid cookie to determine authenticity' });
     } else {
@@ -313,9 +323,11 @@ app.post('/api/submitComment', function (req, res) {
         comment: req.body.comment
       };
       if (typeof commDetails[src] === 'undefined') {
+        // i.e this is the first comment for this image
         commDetails[src] = [];
         commDetails[src].push(data);
       } else {
+        // i.e comments have prevously been submitted for this image
         commDetails[src].push(data);
       }
       //  add new comment to JSON file

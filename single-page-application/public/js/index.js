@@ -191,6 +191,7 @@ window.addEventListener('load', () => {
                     });
                     el.html(html);
                     renderImages();
+                    // form to submit comments
                     document.getElementById('comment_form')
                         .addEventListener('submit', async function (event) {
                             event.preventDefault();
@@ -226,6 +227,7 @@ window.addEventListener('load', () => {
                     });
                     el.html(html);
                 }
+                // button that allows you to filter photos by user
                 document.getElementById('filter_form')
                     .addEventListener('submit', async function (event) {
                         var e = document.getElementById('image_filter');
@@ -311,6 +313,7 @@ window.addEventListener('load', () => {
                 } else if (JSON.parse(data).message === 'authenticated') {
                     const html = uploadTemplate();
                     el.html(html);
+                    // form to upload photos
                     document.getElementById('upload_form')
                         .addEventListener('submit', async function (event) {
                             var imageUrl = document.forms.upload_form.source_link.value;
@@ -444,7 +447,7 @@ function renderImages () {
 //  ---------------------------------------
 //  eslint-disable-next-line no-unused-vars
 function renderComments (ele) {
-    var id = ele.id;
+    var id = ele.id; // stored the src link to identify the image
     fetch('/api/getComments?source=' + encodeURIComponent(id))
         .then(function (response) {
             return response.json();
